@@ -1,0 +1,35 @@
+services:
+  nginx_log_parser_dj:
+    build: ./core
+    image: nginx_log_parser_dj:1.0.0
+    container_name: nginx_log_parser_dj
+    init: true
+    ports: 
+      - 8000:8000
+    volumes:
+     - ./core:/root/
+    depends_on:
+      nginx_log_parser_dj_postgres:
+        condition: service_healthy
+
+
+  nginx_log_parser_dj_postgres:
+    image: postgres:13
+    container_name: nginx_log_parser_dj_postgres
+    init: true
+    ports: 
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes: 
+     - nginx_log_parser_dj_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+  
+volumes:
+  nginx_log_parser_dj_postgres:
+    
